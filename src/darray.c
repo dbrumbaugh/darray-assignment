@@ -9,17 +9,37 @@
 #include "darray.h"
 
 struct darray {
-  /* your attributes go here */
+  int *data;                 /* backing array for storing data */
+  size_t allocation_size;    /* number of INTs allocated in data */
+  size_t number_of_elements; /* number of INTs stored in data */
 };
+
+/* ensure these are static to keep them encapsulated */
+static const size_t g_initial_size = 10;
+static const size_t g_growth_factor = 2;
 
 /*
  * Create an empty darray object of size 0 and return a pointer to it. If the
  * creation should fail, return NULL.
  */
 darray *da_create() {
- 
-}
+  /* allocate and check darray object */
+  darray *array = malloc(sizeof(darray));
+  if (array == NULL) return NULL; /* failure */
 
+  /* allocate and check backing array */
+  array->data = malloc(sizeof(int) * g_initial_size);
+  if (array->data == NULL) { /* allocation failure */
+    free(array); /* clean up already allocated mem */
+    return NULL; /* failure */
+  }
+
+  /* initialize attributes of darray */
+  array->allocation_size = g_initial_size;
+  array->number_of_elements = 0;
+
+  return array; /* success */
+}
 
 /*
  * Access the element stored at index idx within the darray and return a
@@ -27,7 +47,17 @@ darray *da_create() {
  * instead. If the provided array pointer is NULL, return NULL.
  */
 int *da_get(darray *array, size_t idx) {
- 
+  /*
+   * this if statement is safe because of short circuiting;
+   * if array is null, then the second condition won't be
+   * checked
+   */
+  if (array == NULL || idx >= array->number_of_elements) {
+    return NULL; /* failure */
+  }
+
+  return array->data + idx; /* success */
+  /* or, return &array->data[idx] */
 }
 
 /*
@@ -36,7 +66,27 @@ int *da_get(darray *array, size_t idx) {
  * also if the provided array pointer is null.
  */
 int da_append(darray *array, int value) {
- 
+  if (array == NULL) return 0; /* failure */
+
+  /* if there isn't space in the array, we need to reallocate */
+  if (array->number_of_elements == array->allocation_size) {
+    /* use geometric growth for efficiency */
+    size_t new_size = array->allocation_size * g_growth_factor;
+
+    /* reallocate backing array and check allocation */
+    int *tmp = realloc(array->data, new_size * sizeof(int));
+    if (tmp == NULL) return 0; /* failure */
+
+    /* update the backing array and its size in the darray object */
+    array->data = tmp;
+    array->allocation_size = new_size;
+  }
+
+  /* append the element and increase the element counter */
+  array->data[array->number_of_elements] = value;
+  array->number_of_elements++;
+
+  return 1; /* success */
 }
 
 /*
@@ -45,7 +95,7 @@ int da_append(darray *array, int value) {
  * which may be larger. If array is NULL, return 0.
  */
 size_t da_size(darray *array) {
- 
+  return (array == NULL) ? 0 : array->number_of_elements;
 }
 
 /*
@@ -53,5 +103,10 @@ size_t da_size(darray *array) {
  * nothing.
  */
 void da_delete(darray *array) {
- 
+  if (array == NULL) return; /* failure */
+
+  free(array->data); /* free backing array first */
+  free(array);
+
+  return; /* success */
 }
