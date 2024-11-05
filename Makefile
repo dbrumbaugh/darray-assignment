@@ -3,8 +3,7 @@ CFLAGS = -g -Wall -Wextra -Iinclude -std=c2x
 
 TARGET = lib/darray.a
 
-.PHONY:
-
+.PHONY: all
 all: tests
 	bin/tests/darray_test
 
@@ -24,8 +23,8 @@ build:
 
 .PHONY: clean
 clean: 
-	rm -rf $(TARGET)
-	rm -rf lib bin build
+	-rm -rf $(TARGET)
+	-rm -rf lib bin build
 
 $(TARGET): build build/darray.o
 	ar rcs $(TARGET) build/darray.o
