@@ -72,7 +72,7 @@ int da_append(darray *array, int value) {
  */
 size_t da_size(darray *array){
     if (array == NULL) {
-        retrn 0;
+        return 0;
     }
 
     return array->size;
@@ -88,6 +88,8 @@ void da_delete(darray *array) {
     }
     free(array->data);
     free(array);
+    
+    return;
 }
 
 #endif
