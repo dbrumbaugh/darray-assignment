@@ -25,7 +25,7 @@ typedef struct darray darray;
 darray *da_create() {
     darray *new_darray = (darray *)malloc(sizeof(darray));
     if (!new_darray){
-        retrun NULL;
+        return NULL;
     }
     new_darray->size = 0
     new_darray->data = NULL;
@@ -84,7 +84,7 @@ size_t da_size(darray *array){
  */
 void da_delete(darray *array) {
     if (array == NULL) {
-        retrun;
+        return;
     }
     free(array->data);
     free(array);
